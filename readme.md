@@ -1,2 +1,1 @@
 # WeiWo
-postgres
