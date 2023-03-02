@@ -132,3 +132,4 @@ async def success(call: CallbackQuery, state: FSMContext):
             await send_msg_and_btns(user_id, "Qo'shildi ✅", "Succses ✅", menu_uz(), menu_en())
         else:
             await AddCompany.city.set()
+    await state.finish()

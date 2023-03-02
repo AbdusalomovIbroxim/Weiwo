@@ -1,8 +1,8 @@
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.types import CallbackQuery
-from aiobot.buttons import btn_comp
-from aiobot.buttons import sub_category_uz, sub_category_en, category_en, category_uz, regions_uz, get_rating_buttons
+from aiobot.buttons import sub_category_uz, sub_category_en, category_en, category_uz, regions_uz, get_rating_buttons, \
+    btn_comp
 from aiobot.buttons.inline import regions_buttons_uz, regions_buttons_en
 from database import User, Product
 from database.models.rating import UserInCompany
@@ -45,7 +45,7 @@ async def search_input_sub_category(call: CallbackQuery, state: FSMContext):
         names = [i[0] for i in
                  await Product.get_company_names(data.get('city'), data.get('category'), data.get('sub_category'))]
         await bot.send_message(user_id, f"{names}", reply_markup=btn_comp(names))
-        await SearchCompany.name.set()
+    await SearchCompany.name.set()
 
 
 @dis.callback_query_handler(state=SearchCompany.name)
@@ -53,19 +53,13 @@ async def search_end(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         user_id = str(call.from_user.id)
         data['name'] = call.data
-        for i in await Product.get_company(data.get('city'),
-                                           data.get('category'),
-                                           data.get('sub_category'),
-                                           data.get('name')):
-            if i.explanation is None:
-                await bot.send_photo(user_id, i.photo, f'*{i.description}*',
-                                     parse_mode='markdown')
-            else:
-                await bot.send_photo(user_id, i.photo,
-                                     f'*{i.description}\n\n{i.explanation}*',
-                                     parse_mode='markdown')
-        await bot.send_message(user_id, f'{i.yandex}', reply_markup=await get_rating_buttons(i.id))
-        await state.finish()
+        company = await Product.get_company(data.get('city'),
+                                            data.get('category'),
+                                            data.get('sub_category'),
+                                            data.get('name'))
+        for row in company:
+            await bot.send_message(user_id, row)
+    await state.finish()
 
 
 @dis.callback_query_handler(Text(startswith=['w_', 'p_']))

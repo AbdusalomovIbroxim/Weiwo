@@ -18,11 +18,10 @@ class Product(Base):
     explanation = Column(String)
     created_at = Column(Date, default=datetime.now())
 
-    def __repr__(self):
-        return f'<{self.__class__.__name__:} pk={self.pk}, telegram_id={self.telegram_id},' \
-               f'full_name={self.full_name}, city={self.city}, name={self.name}, category={self.category},' \
-               f'sub_category={self.sub_category}, yandex_maps_url={self.yandex_maps_url},' \
-               f'photo={self.photo}, description={self.description}, explanation={self.explanation}>'
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__:} pk -> {self.pk}, city -> {self.city}, name -> {self.name}, category -> {self.category},' \
+               f'sub_category -> {self.sub_category}, yandex_maps_url -> {self.yandex_maps_url},' \
+               f'photo -> {self.photo}, description -> {self.description}, explanation -> {self.explanation}'
 
     @classmethod
     async def add_product(cls, user_id, **kwargs):
@@ -59,7 +58,7 @@ class Product(Base):
     @classmethod
     async def get_company_names(cls, city, category, sub_category):
         query = select(cls.name).where(
-            Product.city == city and Product.category == category and Product.sub_category == sub_category)
+            Product.city == city and Product.category == category and sub_category in Product.sub_category)
         names = await db.execute(query)
         return names
 
@@ -68,5 +67,5 @@ class Product(Base):
         query = select(cls).where(
             Product.city == city and Product.category == category and
             Product.sub_category == sub_category and Product.name == name)
-        company = await db.execute(query)
-        return company
+        companyes = await db.execute(query)
+        return companyes
