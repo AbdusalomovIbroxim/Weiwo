@@ -1,2 +1,2 @@
 from .database import Base, db
-from .models import User
+from .models import User, Product

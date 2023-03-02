@@ -11,7 +11,7 @@ class User(Base):
     full_name = Column(String(30))
     phone_number = Column(String(30))
     score = Column(Integer, default=10)
-    lang = Column(String(3))
+    lang = Column(String(2))
     status = Column(String, default='user')
     created_at = Column(Date, default=datetime.now())
 
@@ -49,3 +49,17 @@ class User(Base):
         await db.execute(query)
         await cls.commit()
         return True
+
+    @classmethod
+    async def get_lang(cls, user_id):
+        query = select(cls.lang).where(cls.user_id == user_id)
+        langs = await db.execute(query)
+        lang, = langs
+        return lang[0]
+
+    @classmethod
+    async def check_admin(cls, user_id: str) -> bool:
+        query = select(cls.status).where(cls.user_id == user_id)
+        statutes = await db.execute(query)
+        status, = statutes
+        return status[0]
