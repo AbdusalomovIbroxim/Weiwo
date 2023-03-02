@@ -53,13 +53,10 @@ async def search_end(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         user_id = str(call.from_user.id)
         data['name'] = call.data
-        data = {
-            "city": data.get('city'),
-            "category": data.get('category'),
-            "sub_category": data.get('sub_category'),
-            "name": data.get('name'),
-        }
-        for i in await Product.get_company(**data):
+        for i in await Product.get_company(data.get('city'),
+                                           data.get('category'),
+                                           data.get('sub_category'),
+                                           data.get('name')):
             if i.explanation is None:
                 await bot.send_photo(user_id, i.photo, f'*{i.description}*',
                                      parse_mode='markdown')
@@ -67,7 +64,7 @@ async def search_end(call: CallbackQuery, state: FSMContext):
                 await bot.send_photo(user_id, i.photo,
                                      f'*{i.description}\n\n{i.explanation}*',
                                      parse_mode='markdown')
-            await bot.send_message(user_id, f'{i.yandex}', reply_markup=await get_rating_buttons(i.id))
+        await bot.send_message(user_id, f'{i.yandex}', reply_markup=await get_rating_buttons(i.id))
         await state.finish()
 
 

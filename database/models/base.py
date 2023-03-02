@@ -64,7 +64,9 @@ class Product(Base):
         return names
 
     @classmethod
-    async def get_company(cls, **kwargs):
-        query = select(cls).where(**kwargs)
-        companyes = await db.execute(query)
-        return companyes
+    async def get_company(cls, city, category, sub_category, name):
+        query = select(cls).where(
+            Product.city == city and Product.category == category and
+            Product.sub_category == sub_category and Product.name == name)
+        company = await db.execute(query)
+        return company

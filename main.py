@@ -3,8 +3,8 @@ import logging
 from aiogram.utils import executor
 
 from database import db
-from dispatcher import dis
-from aiobot import *
+from dispatcher.dispatcher import dis
+import aiobot
 
 logging.basicConfig(level=logging.INFO)
 
