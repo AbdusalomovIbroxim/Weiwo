@@ -1,9 +1,10 @@
 # WeiWo
 
-template for telegram bot
+# Template for telegram bot
 
-aiogram 
-sqlchemy + postgresql
+# aiogram
+
+# sqlchemy + postgresql
 
 
 

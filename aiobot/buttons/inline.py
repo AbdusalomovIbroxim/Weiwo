@@ -141,8 +141,8 @@ def btn_comp(result):
 
 
 async def get_rating_buttons(company_id):
-    worked = 0 if UserInCompany.staff_list(company_id, "worked") is None else UserInCompany.staff_list(company_id)
-    partner = 0 if UserInCompany.staff_list(company_id, "partner") is None else UserInCompany.staff_list(company_id)
+    worked = 0 if await UserInCompany.staff_list(company_id, "worked") is None else await UserInCompany.staff_list(company_id)
+    partner = 0 if await UserInCompany.staff_list(company_id, "partner") is None else await UserInCompany.staff_list(company_id)
     rating_buttons = [
         InlineKeyboardButton(
             f'I worked - {worked}', callback_data=f'w_{company_id}'

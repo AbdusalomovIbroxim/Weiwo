@@ -20,16 +20,17 @@ class UserInCompany(Base):
 
     @classmethod
     async def is_staff(cls, staff_id, company_id):
-        staffs = UserInCompany.staff_list(company_id)
+        staffs = await cls.staff_list(company_id)
         return (staff_id,) in staffs
 
     @classmethod
     async def staff_list(cls, company_id, type_: str = None):
         if type_:
-            query = select(UserInCompany.telegram_id).where(
-                UserInCompany.company_id == company_id and UserInCompany.type == type_)
+            query = select(cls.telegram_id).where(
+                cls.company_id == company_id and cls.type == type_)
         else:
-            query = select(UserInCompany.telegram_id).where(
-                UserInCompany.company_id == company_id)
-        await db.execute(query)
-        return db.scalars.all()
+            query = select(cls.telegram_id).where(
+                cls.company_id == company_id)
+        staffs = await db.execute(query)
+        user, = staffs.fetchall() or None,
+        return user
