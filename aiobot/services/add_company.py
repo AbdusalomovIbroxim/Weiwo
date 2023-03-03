@@ -12,7 +12,7 @@ from states import AddCompany
 @dis.callback_query_handler(text='Add company')
 async def start_add_company(call: CallbackQuery):
     user_id = str(call.from_user.id)
-    if await User.check_admin(user_id) != 'admin':
+    if not await User.check_admin(user_id) == 'admin':
         if await User.get_lang(user_id) == 'uz':
             await bot.send_photo(user_id, open('media/img.png', 'rb'), caption="*Siz admin emassiz*",
                                  parse_mode='markdown')

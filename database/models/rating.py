@@ -31,4 +31,5 @@ class UserInCompany(Base):
         else:
             query = select(UserInCompany.telegram_id).where(
                 UserInCompany.company_id == company_id)
-        return await db.execute(query)
+        await db.execute(query)
+        return db.scalars.all()

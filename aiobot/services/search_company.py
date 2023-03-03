@@ -2,7 +2,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.types import CallbackQuery
 from aiobot.buttons import sub_category_uz, sub_category_en, category_en, category_uz, regions_uz, get_rating_buttons, \
-    btn_comp
+    btn_comp, menu_en, menu_uz
 from aiobot.buttons.inline import regions_buttons_uz, regions_buttons_en
 from database import User, Product
 from database.models.rating import UserInCompany
@@ -44,8 +44,12 @@ async def search_input_sub_category(call: CallbackQuery, state: FSMContext):
         data['sub_category'] = call.data[12:]
         names = [i[0] for i in
                  await Product.get_company_names(data.get('city'), data.get('category'), data.get('sub_category'))]
-        await bot.send_message(user_id, f"{names}", reply_markup=btn_comp(names))
-    await SearchCompany.name.set()
+        if not names:
+            await send_msg_and_btns(user_id, 'Kompaniya topilmadi', 'Company not found', menu_uz(), menu_en())
+            await state.finish()
+        else:
+            await bot.send_message(user_id, f"{names}", reply_markup=btn_comp(names))
+            await SearchCompany.name.set()
 
 
 @dis.callback_query_handler(state=SearchCompany.name)
@@ -53,12 +57,10 @@ async def search_end(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         user_id = str(call.from_user.id)
         data['name'] = call.data
-        company = await Product.get_company(data.get('city'),
-                                            data.get('category'),
-                                            data.get('sub_category'),
-                                            data.get('name'))
+        company = await Product.get_company(data.get('name'))
         for row in company:
-            await bot.send_message(user_id, row)
+            await bot.send_photo(user_id, row.photo, row.description)
+            await bot.send_message(user_id, f'{row.yandex_maps_url}', reply_markup=await get_rating_buttons(row.pk))
     await state.finish()
 
 

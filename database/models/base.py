@@ -19,9 +19,7 @@ class Product(Base):
     created_at = Column(Date, default=datetime.now())
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__:} pk -> {self.pk}, city -> {self.city}, name -> {self.name}, category -> {self.category},' \
-               f'sub_category -> {self.sub_category}, yandex_maps_url -> {self.yandex_maps_url},' \
-               f'photo -> {self.photo}, description -> {self.description}, explanation -> {self.explanation}'
+        return f'{self.__class__.__name__:} pk -> {self.pk}, city -> {self.city}, name -> {self.name}, category -> {self.category}, sub_category -> {self.sub_category}, yandex_maps_url -> {self.yandex_maps_url}, photo -> {self.photo}, description -> {self.description}, explanation -> {self.explanation}'
 
     @classmethod
     async def add_product(cls, user_id, **kwargs):
@@ -56,16 +54,14 @@ class Product(Base):
         return True
 
     @classmethod
-    async def get_company_names(cls, city, category, sub_category):
+    async def get_company_names(cls, city: str, category: str, sub_category: str):
         query = select(cls.name).where(
-            Product.city == city and Product.category == category and sub_category in Product.sub_category)
+            cls.city == city, cls.category == category, sub_category == cls.sub_category)
         names = await db.execute(query)
-        return names
+        return names.fetchall()
 
     @classmethod
-    async def get_company(cls, city, category, sub_category, name):
-        query = select(cls).where(
-            Product.city == city and Product.category == category and
-            Product.sub_category == sub_category and Product.name == name)
-        companyes = await db.execute(query)
-        return companyes
+    async def get_company(cls, name):
+        query = select(cls).where(cls.name == name)
+        company, = await db.execute(query)
+        return company
