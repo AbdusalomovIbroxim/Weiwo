@@ -5,7 +5,7 @@ from aiobot.buttons import sub_category_uz, sub_category_en, category_en, catego
     btn_comp, menu_en, menu_uz
 from aiobot.buttons.inline import regions_buttons_uz, regions_buttons_en
 from database import User, Product
-from database.models.rating import UserInCompany
+from database.models.rating import User_In_Company
 from dispatcher import dis, bot
 from func_ import send_msg_and_btns
 from states import SearchCompany
@@ -69,20 +69,19 @@ async def add_staff(call: CallbackQuery):
     user_id = str(call.from_user.id)
     company_id = int(call.data[2:])
     type_conf = {'w': 'worked', 'p': 'partner'}
-    if await UserInCompany.is_staff(user_id, company_id):
+    if not await User_In_Company.is_staff(user_id, company_id):
+        data = {
+            "company_id": company_id,
+            "type": call.data[0]
+        }
+        await User_In_Company.add_staff_(user_id, **data)
+        text = f'Siz {type_conf[call.data[0]].capitalize()} ni bosdiz'
+        await call.answer(text)
+        await call.message.edit_text(call.message.text,
+                                     reply_markup=await get_rating_buttons(company_id))
+    else:
         if await User.get_lang(user_id) == 'uz':
             text = 'Siz avval bosgansiz ‼'
         else:
             text = 'You clicked first ‼'
         await call.answer(text, show_alert=True)
-    else:
-        data = {
-            "telegram_id": user_id,
-            "company_id": company_id,
-            "type": call.data[0]
-        }
-        await UserInCompany.add_staff_(**data)
-        text = f'Siz {type_conf[call.data[0]].capitalize()} ni bosdiz'
-        await call.answer(text)
-        await call.message.edit_text(call.message.text,
-                                     reply_markup=await get_rating_buttons(company_id))

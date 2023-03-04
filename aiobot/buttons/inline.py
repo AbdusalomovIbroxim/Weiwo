@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import csv
-from database.models import UserInCompany
+from database.models import User_In_Company
 
 
 def read_csv(file_name):
@@ -141,8 +141,8 @@ def btn_comp(result):
 
 
 async def get_rating_buttons(company_id):
-    worked = 0 if await UserInCompany.staff_list(company_id, "worked") is None else await UserInCompany.staff_list(company_id)
-    partner = 0 if await UserInCompany.staff_list(company_id, "partner") is None else await UserInCompany.staff_list(company_id)
+    worked = 0 if await User_In_Company.staff_list(company_id, "w") is None else len(await User_In_Company.staff_list(company_id))
+    partner = 0 if await User_In_Company.staff_list(company_id, "p") is None else len(await User_In_Company.staff_list(company_id))
     rating_buttons = [
         InlineKeyboardButton(
             f'I worked - {worked}', callback_data=f'w_{company_id}'
