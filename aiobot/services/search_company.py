@@ -64,6 +64,7 @@ async def search_end(call: CallbackQuery, state: FSMContext):
     await state.finish()
 
 
+# reting buttons
 @dis.callback_query_handler(Text(startswith=['w_', 'p_']))
 async def add_staff(call: CallbackQuery):
     user_id = str(call.from_user.id)
