@@ -4,16 +4,17 @@ from aiogram.types import CallbackQuery
 from aiobot.buttons import sub_category_uz, sub_category_en, category_en, category_uz, regions_uz, get_rating_buttons, \
     btn_comp, menu_en, menu_uz
 from aiobot.buttons.inline import regions_buttons_uz, regions_buttons_en
-from database import User, Product
-from database.models.rating import User_In_Company
+from aiobot.models import User, Product
+from aiobot.models import Company
 from dispatcher import dis, bot
-from func_ import send_msg_and_btns
+from func_ import send_msg_and_btns, del_msg
 from states import SearchCompany
 
 
 @dis.callback_query_handler(text='Search company')
 async def search_company(call: CallbackQuery):
     user_id = str(call.from_user.id)
+    await del_msg(user_id, call.message.message_id, 1)
     await send_msg_and_btns(user_id, 'Tanlang - search', 'Choose - search', regions_buttons_uz(), regions_buttons_en())
     await SearchCompany.city.set()
 
@@ -24,6 +25,7 @@ async def search_input_city(call: CallbackQuery, state: FSMContext):
         user_id = str(call.from_user.id)
         region_id = call.data.split('region_')[-1]
         data['city'] = regions_uz.get(region_id)
+        await del_msg(user_id, call.message.message_id, 1)
         await send_msg_and_btns(user_id, 'Tanlang', 'Choose category', category_uz(), category_en())
         await SearchCompany.category.set()
 
@@ -33,6 +35,7 @@ async def search_input_category(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         user_id = str(call.from_user.id)
         data['category'] = call.data[8:]
+        await del_msg(user_id, call.message.message_id, 1)
     await send_msg_and_btns(user_id, 'Tanlang', 'Choose category - search', sub_category_uz(), sub_category_en())
     await SearchCompany.sub_category.set()
 
@@ -42,6 +45,7 @@ async def search_input_sub_category(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         user_id = str(call.from_user.id)
         data['sub_category'] = call.data[12:]
+        await del_msg(user_id, call.message.message_id, 1)
         names = [i[0] for i in
                  await Product.get_company_names(data.get('city'), data.get('category'), data.get('sub_category'))]
         if not names:
@@ -58,9 +62,11 @@ async def search_end(call: CallbackQuery, state: FSMContext):
         user_id = str(call.from_user.id)
         data['name'] = call.data
         company = await Product.get_company(data.get('name'))
+        await del_msg(user_id, call.message.message_id, 1)
         for row in company:
-            await bot.send_photo(user_id, row.photo, row.description)
-            await bot.send_message(user_id, f'{row.yandex_maps_url}', reply_markup=await get_rating_buttons(row.pk))
+            await bot.send_photo(user_id, row.photo,
+                                 f"📂{row.description}\n\n📍{row.city}\n\n#{row.category} #{row.sub_category}")
+            await bot.send_message(user_id, row.yandex_maps_url, reply_markup=await get_rating_buttons(row.pk))
     await state.finish()
 
 
@@ -70,12 +76,12 @@ async def add_staff(call: CallbackQuery):
     user_id = str(call.from_user.id)
     company_id = int(call.data[2:])
     type_conf = {'w': 'worked', 'p': 'partner'}
-    if not await User_In_Company.is_staff(user_id, company_id):
+    if not await Company.is_staff(user_id, company_id):
         data = {
             "company_id": company_id,
             "type": call.data[0]
         }
-        await User_In_Company.add_staff_(user_id, **data)
+        await Company.add_staff_to_company(user_id, **data)
         text = f'Siz {type_conf[call.data[0]].capitalize()} ni bosdiz'
         await call.answer(text)
         await call.message.edit_text(call.message.text,

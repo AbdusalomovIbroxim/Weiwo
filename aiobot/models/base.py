@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import Column, String, Date, select, update, delete
 
-from database import Base, db
+from aiobot.database import Base, db
 
 
 class Product(Base):
@@ -19,7 +19,10 @@ class Product(Base):
     created_at = Column(Date, default=datetime.now())
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__:} pk -> {self.pk}, city -> {self.city}, name -> {self.name}, category -> {self.category}, sub_category -> {self.sub_category}, yandex_maps_url -> {self.yandex_maps_url}, photo -> {self.photo}, description -> {self.description}, explanation -> {self.explanation}'
+        return f'{self.__class__.__name__:} pk -> {self.pk}, city -> {self.city}, name -> {self.name}, ' \
+               f'category -> {self.category}, sub_category -> {self.sub_category},' \
+               f' yandex_maps_url -> {self.yandex_maps_url}, photo -> {self.photo}, description -> {self.description}, ' \
+               f'explanation -> {self.explanation}'
 
     @classmethod
     async def add_product(cls, user_id, **kwargs):

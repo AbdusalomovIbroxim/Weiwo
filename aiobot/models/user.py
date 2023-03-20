@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, update, delete, Date
 from sqlalchemy.future import select
 
-from database import Base, db
+from aiobot.database import Base, db
 
 
 class User(Base):
@@ -51,7 +51,7 @@ class User(Base):
         return True
 
     @classmethod
-    async def get_lang(cls, user_id):
+    async def get_lang(cls, user_id: str):
         query = select(cls.lang).where(cls.user_id == user_id)
         langs = await db.execute(query)
         lang, = langs
@@ -63,3 +63,11 @@ class User(Base):
         statutes = await db.execute(query)
         status, = statutes
         return status[0]
+
+    @classmethod
+    async def ball(cls, user_id: str):
+        query = update(
+            cls
+        ).where(cls.user_id == user_id).values(cls.score - 10)
+        await db.execute(query)
+        await cls.commit()

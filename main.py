@@ -2,7 +2,7 @@ import logging
 
 from aiogram.utils import executor
 
-from database import db
+from aiobot.database import db
 from dispatcher.dispatcher import dis
 import aiobot
 

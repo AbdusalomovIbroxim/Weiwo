@@ -1,5 +1,4 @@
-from aiogram.types import CallbackQuery, Message
-from dispatcher import dis, bot
+from dispatcher import dis  # bot
 from aiogram.types import Message
 
 

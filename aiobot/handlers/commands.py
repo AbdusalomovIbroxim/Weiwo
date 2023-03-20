@@ -1,7 +1,7 @@
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
-from aiobot.buttons import chooce_lang, BtnContact, menu_uz
-from database import User
+from aiobot.buttons import chooce_lang, phone, menu_uz
+from aiobot.models import User
 from aiobot.buttons import menu_en
 from dispatcher import dis
 from func_ import send_msg_and_btns
@@ -27,7 +27,7 @@ async def input_lang(call: CallbackQuery, state: FSMContext):
         await call.message.answer("*Click button   -|:\n"
                                   "     \n"
                                   "Tugmasini bosing-|:*", parse_mode='markdown',
-                                  reply_markup=BtnContact())
+                                  reply_markup=phone())
         await CreateAccount.phone_number.set()
 
 

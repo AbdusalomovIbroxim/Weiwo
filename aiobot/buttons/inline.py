@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import csv
-from database.models import User_In_Company
+from aiobot.models import Company
 
 
 def read_csv(file_name):
@@ -14,11 +14,11 @@ regions_en = {_id: name for _id, name in read_csv('regions_en.csv')}
 
 text_menu_en = ["Add company", "Advertising",
                 "Search company", "I'm looking",
-                "Last orders", "Our pages"
+                "Last orders", "Our pages", "Application"
                 ]
 text_menu_uz = ["Kompaniya qo'shish", "Reklama berish",
                 "Kompaniya qidirish", "Qidiryapman",
-                "Oxirgi buyurtmanlar", "Bizning sahifalar"
+                "Oxirgi buyurtmanlar", "Bizning sahifalar", "Zayavka"
                 ]
 categories_uz_for_s = ['Ishlab chiqaruvchi', "Uskuna ta'minotchi", "Xom ashyo ta'minotchi",
                        "Shahardagi hammam kompaniyalar"]
@@ -34,8 +34,7 @@ sub_categories_uz = ['Hammasi',
                      'Metall',
                      'Qadoqlash/fasovka/markirovka/pechat',
                      'Sanoat iqlim uskunalari',
-                     'Ombor uskunalari',
-                     'Keyingisi'
+                     'Ombor uskunalari'
                      ]
 sub_categories_en = ['Everything',
                      'General equipment supplier',
@@ -45,8 +44,18 @@ sub_categories_en = ['Everything',
                      'Metal',
                      'Packing/marking/printing',
                      'Industrial climate equipment',
-                     'Warehouse equipment',
-                     'Next']
+                     'Warehouse equipment']
+
+application_uz = ["Sotish", "Qidirish", "Barcha e'lonlar", "Asosiy menyuga"]
+application_en = ["Selling", "Searching", "All application", "Main menu"]
+
+application_category_uz_text = ['Uskuna', 'Ishlab chiqaruvchi', 'Ishlatilgan uskuna', 'Xom ashyo', 'Texnolog']
+application_category_en_text = ['Equipment', 'Manufacturer', 'Used equipment', 'Raw material', 'Technologist']
+
+application_sub_category_uz_text = ['Sub category 1', 'Sub category 2', 'Sub category 3', 'Sub category 4',
+                                    'Sub category 5']
+application_sub_category_en_text = ['Sub category 1', 'Sub category 2', 'Sub category 3', 'Sub category 4',
+                                    'Sub category 5']
 
 
 def chooce_lang():
@@ -141,14 +150,62 @@ def btn_comp(result):
 
 
 async def get_rating_buttons(company_id):
-    worked = 0 if await User_In_Company.staff_list(company_id, "w") is None else len(await User_In_Company.staff_list(company_id))
-    partner = 0 if await User_In_Company.staff_list(company_id, "p") is None else len(await User_In_Company.staff_list(company_id))
+    worked = 0 if await Company.staff_list(company_id, "w") is None else len(await Company.staff_list(company_id))
+    partner = 0 if await Company.staff_list(company_id, "p") is None else len(await Company.staff_list(company_id))
     rating_buttons = [
         InlineKeyboardButton(
-            f'I worked - {worked}', callback_data=f'w_{company_id}'
+            f'👍🏽 {worked}', callback_data=f'w_{company_id}'
         ),
         InlineKeyboardButton(
-            f'I\'m a partner - {partner}', callback_data=f'p_{company_id}'
+            f'👎🏽 {partner}', callback_data=f'p_{company_id}'
         )
     ]
     return InlineKeyboardMarkup().add(*rating_buttons)
+
+
+def application_menu_uz():
+    btns = [
+        InlineKeyboardButton(name, callback_data=application_en[application_uz.index(name)]) for name in application_uz
+    ]
+    return InlineKeyboardMarkup(row_width=2).add(*btns)
+
+
+def application_menu_en():
+    btns = [
+        InlineKeyboardButton(name, callback_data=name) for name in application_en
+    ]
+    return InlineKeyboardMarkup(row_width=2).add(*btns)
+
+
+def application_category_uz():
+    btns = [
+        InlineKeyboardButton(category,
+                             callback_data=application_category_en_text[application_category_uz_text.index(category)])
+        for category in
+        application_category_uz_text
+    ]
+    return InlineKeyboardMarkup(row_width=2).add(*btns)
+
+
+def application_category_en():
+    btns = [
+        InlineKeyboardButton(category, callback_data=category) for category in application_category_uz_text
+    ]
+    return InlineKeyboardMarkup(row_width=2).add(*btns)
+
+
+def application_sub_category_uz():
+    btns = [
+        InlineKeyboardButton(sub_category, callback_data=application_sub_category_en_text.index(sub_category)) for
+        sub_category in
+        application_sub_category_uz_text
+    ]
+    return InlineKeyboardMarkup(row_width=2).add(*btns)
+
+
+def application_sub_category_en():
+    btns = [
+        InlineKeyboardButton(sub_category, callback_data=sub_category) for sub_category in
+        application_sub_category_en_text
+    ]
+    return InlineKeyboardMarkup(row_width=2).add(*btns)

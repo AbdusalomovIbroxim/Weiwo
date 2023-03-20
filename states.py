@@ -24,3 +24,13 @@ class SearchCompany(StatesGroup):
     category = State()
     sub_category = State()
     name = State()
+
+
+class Application(StatesGroup):
+    type = State()
+    contact = State()
+    category = State()
+    sub_category = State()
+    description = State()
+    photo = State()
+    username = State()

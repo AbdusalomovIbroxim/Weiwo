@@ -1,5 +1,5 @@
 from dispatcher import bot
-from database import User
+from aiobot.models import User
 
 
 async def send_msg_and_btns(telegram_id, text_uz, text_en, btn_uz, btn_en):
@@ -14,3 +14,8 @@ async def send_msg(telegram_id, text_uz, text_en):
         await bot.send_message(telegram_id, text_en)
     else:
         await bot.send_message(telegram_id, text_uz)
+
+
+async def del_msg(telegram_id: str, msg_id: int, who: int) -> None:
+    for i in range(who):
+        await bot.delete_message(telegram_id, msg_id - i)
