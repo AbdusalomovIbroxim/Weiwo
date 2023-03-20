@@ -42,5 +42,5 @@ class Company(Base):
             query = select(cls.telegram_id).where(
                 cls.company_id == company_id)
         staffs = await db.execute(query)
-        user, = staffs.fetchall() or None,
+        user, = staffs or None,
         return user

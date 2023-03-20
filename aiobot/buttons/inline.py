@@ -143,10 +143,10 @@ def YesOrNo():
 
 def btn_comp(result):
     rkm = InlineKeyboardMarkup(row_width=2)
-    btns = [
+    btn = [
         InlineKeyboardButton(name, callback_data=name) for name in result
     ]
-    return rkm.add(*btns)
+    return rkm.add(*btn)
 
 
 async def get_rating_buttons(company_id):
@@ -164,48 +164,48 @@ async def get_rating_buttons(company_id):
 
 
 def application_menu_uz():
-    btns = [
+    result = [
         InlineKeyboardButton(name, callback_data=application_en[application_uz.index(name)]) for name in application_uz
     ]
-    return InlineKeyboardMarkup(row_width=2).add(*btns)
+    return InlineKeyboardMarkup(row_width=2).add(*result)
 
 
 def application_menu_en():
-    btns = [
+    result = [
         InlineKeyboardButton(name, callback_data=name) for name in application_en
     ]
-    return InlineKeyboardMarkup(row_width=2).add(*btns)
+    return InlineKeyboardMarkup(row_width=2).add(*result)
 
 
 def application_category_uz():
-    btns = [
+    result = [
         InlineKeyboardButton(category,
                              callback_data=application_category_en_text[application_category_uz_text.index(category)])
         for category in
         application_category_uz_text
     ]
-    return InlineKeyboardMarkup(row_width=2).add(*btns)
+    return InlineKeyboardMarkup(row_width=2).add(*result)
 
 
 def application_category_en():
-    btns = [
+    result = [
         InlineKeyboardButton(category, callback_data=category) for category in application_category_uz_text
     ]
-    return InlineKeyboardMarkup(row_width=2).add(*btns)
+    return InlineKeyboardMarkup(row_width=2).add(*result)
 
 
 def application_sub_category_uz():
-    btns = [
+    result = [
         InlineKeyboardButton(sub_category, callback_data=application_sub_category_en_text.index(sub_category)) for
         sub_category in
         application_sub_category_uz_text
     ]
-    return InlineKeyboardMarkup(row_width=2).add(*btns)
+    return InlineKeyboardMarkup(row_width=2).add(*result)
 
 
 def application_sub_category_en():
-    btns = [
+    result = [
         InlineKeyboardButton(sub_category, callback_data=sub_category) for sub_category in
         application_sub_category_en_text
     ]
-    return InlineKeyboardMarkup(row_width=2).add(*btns)
+    return InlineKeyboardMarkup(row_width=2).add(*result)

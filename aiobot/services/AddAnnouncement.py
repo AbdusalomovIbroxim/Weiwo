@@ -15,23 +15,20 @@ async def start_add_anouncement(call: CallbackQuery):
     await Application.type.set()
 
 
-@dis.callback_query_handler(text=['Selling', 'Searching', 'Main menu', 'All application'], state=Application.type)
+@dis.callback_query_handler(text=['Selling', 'Searching', 'Main menu'], state=Application.type)
 async def add_application(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
-        if call.data == 'All application':
-            await bot.send_photo(call.from_user.id, photo=open('media/PageNotFound.png', 'rb'))
+        user_id = str(call.from_user.id)
+        await del_msg(user_id, call.message.message_id, 1)
+        print(call.data)
+        if call.data == 'Main menu':
+            await send_msg_and_btns(user_id, "Menu", "Menu", menu_uz(), menu_en())
+            await state.finish()
         else:
-            user_id = str(call.from_user.id)
-            await del_msg(user_id, call.message.message_id, 1)
-            print(call.data)
-            if call.data == 'Main menu':
-                await send_msg_and_btns(user_id, "Menu", "Menu", menu_uz(), menu_en())
-                await state.finish()
-            else:
-                data['type'] = call.data.lower()
-                await send_msg(user_id, "Telefon raqamingizni jo'nating",
-                               "Send phone number")
-                await Application.contact.set()
+            data['type'] = call.data.lower()
+            await send_msg(user_id, "Telefon raqamingizni jo'nating",
+                           "Send phone number")
+            await Application.contact.set()
 
 
 @dis.message_handler(state=Application.contact)
@@ -100,3 +97,4 @@ async def add_description(call: CallbackQuery, state: FSMContext):
 
 # @dis.callback_query_handler(text=['All application'])
 # async def send_all_applications(call: CallbackQuery):
+#     ...

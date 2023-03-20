@@ -82,7 +82,7 @@ async def add_staff(call: CallbackQuery):
             "type": call.data[0]
         }
         await Company.add_staff_to_company(user_id, **data)
-        text = f'Siz {type_conf[call.data[0]].capitalize()} ni bosdiz'
+        text = f'Siz {type_conf[call.data[0]].capitalize()} ni bosdingiz ‼❗'
         await call.answer(text)
         await call.message.edit_text(call.message.text,
                                      reply_markup=await get_rating_buttons(company_id))

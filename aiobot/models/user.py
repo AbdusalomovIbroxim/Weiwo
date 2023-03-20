@@ -64,10 +64,10 @@ class User(Base):
         status, = statutes
         return status[0]
 
-    @classmethod
-    async def ball(cls, user_id: str):
-        query = update(
-            cls
-        ).where(cls.user_id == user_id).values(cls.score - 10)
-        await db.execute(query)
-        await cls.commit()
+    # @classmethod
+    # async def ball(cls, user_id: str):
+    #     query = update(
+    #         cls
+    #     ).where(cls.user_id == user_id).values(cls.score - 10)
+    #     await db.execute(query)
+    #     await cls.commit()
