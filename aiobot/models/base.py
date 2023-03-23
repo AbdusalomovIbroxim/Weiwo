@@ -50,11 +50,11 @@ class Product(Base):
         await cls.commit()
 
     @classmethod
-    async def delete(cls, user_id):
-        query = delete(cls).where(cls.user_id == user_id)
+    async def delete(cls, id):
+        query = delete(cls).where(cls.pk == id)
         await db.execute(query)
         await cls.commit()
-        return True
+        # return True
 
     @classmethod
     async def get_company_names(cls, city: str, category: str, sub_category: str):

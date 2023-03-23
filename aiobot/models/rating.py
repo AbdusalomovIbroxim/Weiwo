@@ -13,7 +13,7 @@ from aiobot.database import Base, db
 
 
 class Company(Base):
-    telegram_id = Column(String)  # TODO references=
+    telegram_id = Column(String)  # TODO: references=
     company_id = Column(Integer)
     type = Column(String(30))
 
@@ -34,13 +34,13 @@ class Company(Base):
         return (staff_id,) in result
 
     @classmethod
-    async def staff_list(cls, company_id, type_: str = None) -> len:
-        if type_:
+    async def staff_list(cls, company_id, company_type: str = None):
+        if company_type is not None:
             query = select(cls.telegram_id).where(
-                cls.company_id == company_id, cls.type == type_)
+                cls.company_id == company_id, cls.type == company_type)
         else:
             query = select(cls.telegram_id).where(
                 cls.company_id == company_id)
         staffs = await db.execute(query)
-        user, = staffs or None,
+        user, = (staffs,) or None
         return user

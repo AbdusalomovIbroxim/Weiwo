@@ -80,15 +80,15 @@ async def add_company_input_category(call: CallbackQuery, state: FSMContext):
 async def input_yandex_maps_url(msg: Message, state: FSMContext):
     async with state.proxy() as data:
         user_id = str(msg.from_user.id)
-        if msg.text.startswith('https://yandex.uz/maps/'):
-            data['yandex_maps_url'] = msg.text
-            await send_msg(user_id, "Rasm + ma'lumot jo'nating'", 'Send photo + description')
-            await del_msg(user_id, msg.message_id, 2)
-            await AddCompany.photo.set()
-        else:
-            await send_msg(user_id, "Url da hatolik qaytatdan jo'nating", "Resend url error in url")
-            await del_msg(user_id, msg.message_id, 1)
-            await AddCompany.yandex_maps_url.set()
+        # if msg.text.startswith('https://yandex.uz/maps/'):
+        data['yandex_maps_url'] = msg.text
+        await send_msg(user_id, "Rasm + ma'lumot jo'nating'", 'Send photo + description')
+        await del_msg(user_id, msg.message_id, 2)
+        await AddCompany.photo.set()
+        # else:
+        #     await send_msg(user_id, "Url da hatolik qaytatdan jo'nating", "Resend url error in url")
+        #     await del_msg(user_id, msg.message_id, 1)
+        #     await AddCompany.yandex_maps_url.set()
 
 
 @dis.message_handler(content_types=['photo'], state=AddCompany.photo)

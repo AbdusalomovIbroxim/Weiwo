@@ -1,6 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import csv
-from aiobot.models import Company
+
+from aiobot.models import Company, Announcement
 
 
 def read_csv(file_name):
@@ -13,13 +14,13 @@ regions_uz = {_id: name for _id, name in read_csv('regions.csv')}
 regions_en = {_id: name for _id, name in read_csv('regions_en.csv')}
 
 text_menu_en = ["Add company", "Advertising",
-                "Search company", "I'm looking",
-                "Last orders", "Our pages", "Application"
-                ]
+                "Search company",
+                "Our pages", "Application", 'My cabinet'
+                ]  # "Last orders"
 text_menu_uz = ["Kompaniya qo'shish", "Reklama berish",
-                "Kompaniya qidirish", "Qidiryapman",
-                "Oxirgi buyurtmanlar", "Bizning sahifalar", "Zayavka"
-                ]
+                "Kompaniya qidirish",
+                "Bizning sahifalar", "Zayavka", 'Mening kablinetm'
+                ]  # "Oxirgi buyurtmanlar"
 categories_uz_for_s = ['Ishlab chiqaruvchi', "Uskuna ta'minotchi", "Xom ashyo ta'minotchi",
                        "Shahardagi hammam kompaniyalar"]
 categories_en_for_s = ["Manufacturer", "Equipment supplier", "Supplier of raw materials", "All companies in city"]
@@ -56,6 +57,14 @@ application_sub_category_uz_text = ['Sub category 1', 'Sub category 2', 'Sub cat
                                     'Sub category 5']
 application_sub_category_en_text = ['Sub category 1', 'Sub category 2', 'Sub category 3', 'Sub category 4',
                                     'Sub category 5']
+
+btn_text_admin_panel_uz = ['Kompaniyani tahrirlash', 'E\'lonni tahrirlash', 'kompaniyani o\'chirish',
+                           'E\'lonni o\'chirish', 'Axborot byulleteni', 'Admin qo\'shish', 'Rassilka']
+btn_text_admin_panel_en = ['Edit company', 'Edit post', 'Del company', 'Del post', 'Newsletter', 'Add admin',
+                           'Mailing list']
+
+text_my_cabinet_uz = ['E\'lonni o\'zgartirish', 'Hamyon']
+text_my_cabinet_en = ['Edit announcement', 'Wallet']
 
 
 def chooce_lang():
@@ -150,8 +159,10 @@ def btn_comp(result):
 
 
 async def get_rating_buttons(company_id):
-    worked = 0 if await Company.staff_list(company_id, "w") is None else len(await Company.staff_list(company_id))
-    partner = 0 if await Company.staff_list(company_id, "p") is None else len(await Company.staff_list(company_id))
+    worked = 0 if await Company.staff_list(company_id, "w") is None else len(
+        [i for i in await Company.staff_list(company_id, 'w')])
+    partner = 0 if await Company.staff_list(company_id, "p") is None else len(
+        [i for i in await Company.staff_list(company_id, 'p')])
     rating_buttons = [
         InlineKeyboardButton(
             f'👍🏽 {worked}', callback_data=f'w_{company_id}'
@@ -189,7 +200,7 @@ def application_category_uz():
 
 def application_category_en():
     result = [
-        InlineKeyboardButton(category, callback_data=category) for category in application_category_uz_text
+        InlineKeyboardButton(category, callback_data=category) for category in application_category_en_text
     ]
     return InlineKeyboardMarkup(row_width=2).add(*result)
 
@@ -209,3 +220,40 @@ def application_sub_category_en():
         application_sub_category_en_text
     ]
     return InlineKeyboardMarkup(row_width=2).add(*result)
+
+
+def admin_panel_uz():
+    result = [
+        InlineKeyboardButton(name, callback_data=btn_text_admin_panel_en[btn_text_admin_panel_uz.index(name)]) for name
+        in btn_text_admin_panel_uz
+    ]
+    return InlineKeyboardMarkup(row_width=2).add(*result)
+
+
+def admin_panel_en():
+    result = [
+        InlineKeyboardButton(name, callback_data=name) for name in btn_text_admin_panel_en
+    ]
+    return InlineKeyboardMarkup(row_width=2).add(*result)
+
+
+def my_cabinet_uz():
+    result = [
+        InlineKeyboardButton(text, callback_data=text_my_cabinet_en[text_my_cabinet_uz.index(text)]) for text in
+        text_my_cabinet_uz
+    ]
+    return InlineKeyboardMarkup(row_width=2).add(*result)
+
+
+def my_cabinet_en():
+    result = [
+        InlineKeyboardButton(text, callback_data=text) for text in
+        text_my_cabinet_en
+    ]
+    return InlineKeyboardMarkup(row_width=2).add(*result)
+
+
+async def my_announcements():
+    id = await Announcement.get_all()
+    result = [InlineKeyboardButton(f'{i[0].description}', callback_data=i[0].pk) for i in id]
+    return InlineKeyboardMarkup().add(*result)

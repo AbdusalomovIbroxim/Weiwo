@@ -34,3 +34,30 @@ class Application(StatesGroup):
     description = State()
     photo = State()
     username = State()
+
+
+class Del(StatesGroup):
+    id = State()
+
+
+class Admin_state(StatesGroup):
+    mailing_list = State()
+    id = State()
+    photo = State()
+    description = State()
+
+
+class Advertising(StatesGroup):
+    photo = State()
+    description = State()
+    phone = State()
+
+
+class Edit_announcement(StatesGroup):
+    id = State()
+    category = State()
+    sub_category = State()
+    photo = State()
+    description = State()
+    phone = State()
+    score = State()
