@@ -16,7 +16,7 @@ class User(Base):
     created_at = Column(Date, default=datetime.now())
 
     def __repr__(self):
-        return f'<{self.__class__.__name__:} pk={self.pk}, user_id={self.user_id}, full_name={self.full_name}, status={self.status}>'
+        return f'<{self.__class__.__name__:} pk={self.pk}, user_id={self.user_id}, full_name={self.full_name}, score={self.score}, status={self.status}>'
 
     @classmethod
     async def create(cls, user_id, **kwargs):
@@ -69,10 +69,3 @@ class User(Base):
         statutes = await db.execute(query)
         status, = statutes
         return status[0]
-
-    @classmethod
-    async def tell(cls, user_id: str):
-        query = select(cls.phone_number).where(cls.user_id == user_id)
-        phone_number = await db.execute(query)
-        number, = phone_number
-        return number[0]

@@ -46,14 +46,17 @@ async def search_input_sub_category(call: CallbackQuery, state: FSMContext):
         user_id = str(call.from_user.id)
         data['sub_category'] = call.data[12:]
         await del_msg(user_id, call.message.message_id, 1)
+
         names = [i[0] for i in
                  await Product.get_company_names(data.get('city'), data.get('category'), data.get('sub_category'))]
-        if not names:
+        # await send_msg_and_btns(user_id, "tanlang", "Choose", )
+        if names:
+            await send_msg_and_btns(user_id, "Tanlang", "Choose", btn_comp(names), btn_comp(names))
+            await SearchCompany.name.set()
+
+        else:
             await send_msg_and_btns(user_id, 'Kompaniya topilmadi', 'Company not found', menu_uz(), menu_en())
             await state.finish()
-        else:
-            await bot.send_message(user_id, f"{names}", reply_markup=btn_comp(names))
-            await SearchCompany.name.set()
 
 
 @dis.callback_query_handler(state=SearchCompany.name)
@@ -64,13 +67,21 @@ async def search_end(call: CallbackQuery, state: FSMContext):
         company = await Product.get_company(data.get('name'))
         await del_msg(user_id, call.message.message_id, 1)
         for row in company:
-            await bot.send_photo(user_id, row.photo,
-                                 f"📂{row.description}\n\n📍{row.city}\n\n#{row.category} #{row.sub_category}")
-            await bot.send_message(user_id, row.yandex_maps_url, reply_markup=await get_rating_buttons(row.pk))
+            url = row.yandex_maps_url
+            print(url)
+            if row.photo:
+                await bot.send_photo(user_id, row.photo,
+                                     f"*{row.name}*\n\n📂{row.description}\n\n#{row.category} #{row.sub_category}\n\n{url if url else ' '}",
+                                     reply_markup=await get_rating_buttons(row.pk), parse_mode='markdown')
+            else:
+                await bot.send_message(user_id,
+                                       f"*{row.name}*\n\n📂{row.description}\n\n#{row.category} #{row.sub_category}",
+                                       reply_markup=await get_rating_buttons(row.pk), parse_mode='markdown')
     await state.finish()
 
+    # reting buttons
 
-# reting buttons
+
 @dis.callback_query_handler(Text(startswith=['w_', 'p_']))
 async def add_staff(call: CallbackQuery):
     user_id = str(call.from_user.id)

@@ -24,27 +24,17 @@ class Announcement(Base):
         return announcement
 
     @classmethod
-    async def get_all(cls):
-        query = select(cls)
+    async def get_all(cls, user_id):
+        query = select(cls).where(cls.user_id == user_id)
         announcements = await db.execute(query)
         return announcements
 
-    @classmethod
-    async def remove(cls, user_id, phone_number, photo, description, category, sub_category):
-        ...
-
-    @classmethod
-    async def edit(cls, announcement_id, **kwargs):
-        query = (update(cls).where(cls.pk == announcement_id).values(**kwargs))
-        await db.execute(query)
-        await cls.commit()
-
-
-"""
-type
-phone_number
-photo
-description
-category
-sub_category
-"""
+    # @classmethod
+    # async def update(cls, id, **kwargs):
+    #     query = (
+    #         update(cls)
+    #         .where(cls.pk == id)
+    #         .values(**kwargs)
+    #     )
+    #     await db.execute(query)
+    #     await cls.commit()

@@ -4,12 +4,12 @@ from aiobot.buttons import chooce_lang, phone, menu_uz
 from aiobot.models import User
 from aiobot.buttons import menu_en
 from dispatcher import dis
-from func_ import send_msg_and_btns
+from func_ import send_msg_and_btns, del_msg
 from states import CreateAccount
 
 
-@dis.message_handler(commands=['start'])
-async def send_welcome(msg: Message):
+@dis.message_handler(commands=['start'], state=['*'])
+async def send_welcome(msg: Message, state: FSMContext):
     user_id = str(msg.from_user.id)
     if not await User.get(user_id):
         await msg.answer("*Choose lanuage:\n"
@@ -17,7 +17,9 @@ async def send_welcome(msg: Message):
                          "Tilni tanlang:*", parse_mode='markdown', reply_markup=chooce_lang())
         await CreateAccount.lang.set()
     else:
+        # await del_msg(user_id, msg.message_id, 1)
         await send_msg_and_btns(user_id, 'Menu', 'Menu', menu_uz(), menu_en())
+    await state.finish()
 
 
 @dis.callback_query_handler(text=['uz', 'en'], state=CreateAccount.lang)

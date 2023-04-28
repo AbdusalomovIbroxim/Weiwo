@@ -16,4 +16,5 @@ async def on_startup(*args, **kwargs):
 
 
 if __name__ == '__main__':
-    executor.start_polling(dis, on_startup=on_startup, skip_updates=True)
+    # executor.start_polling(dis, on_startup=on_startup, skip_updates=True)
+    executor.start_polling(dis, on_startup=on_startup)

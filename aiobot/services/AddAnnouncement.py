@@ -13,11 +13,20 @@ from aiobot.models import Announcement
 async def start_add_anouncement(call: CallbackQuery):
     user_id = str(call.from_user.id)
     await del_msg(user_id, call.message.message_id, 1)
-    await send_msg_and_btns(user_id, "Menu", "Menu", application_menu_uz(), application_menu_en())
-    await Application.type.set()
+    score = await User.get(user_id)
+    for i in score:
+        if i.score >= 10:
+            await send_msg_and_btns(user_id, "Menu", "Menu", application_menu_uz(), application_menu_en())
+            await Application.type.set()
+        else:
+            await send_msg_and_btns(user_id,
+                                    'Sizning hisobingizda mablag\' yetarli emas iltimos hisobingizni to\'diring\n\nMening kabinetmga kirsangiz hisobni toldirish bo\'limi bor',
+                                    'Your account does not have enough funds, please top up your account\n\nIf you enter my office, there is a section to fill the account',
+                                    menu_uz(), menu_en())
 
 
-@dis.callback_query_handler(text=['Selling', 'Searching', 'Main menu', 'All application'], state=Application.type)
+@dis.callback_query_handler(text=['Selling', 'Searching', 'Main menu', 'All application', 'Edit announcement'],
+                            state=Application.type)
 async def add_application(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         user_id = str(call.from_user.id)
@@ -26,7 +35,7 @@ async def add_application(call: CallbackQuery, state: FSMContext):
             await send_msg_and_btns(user_id, "Menu", "Menu", menu_uz(), menu_en())
             await state.finish()
         elif call.data == 'All application':
-            await bot.send_photo(user_id, open('media/PageNotFound.png', 'rb'))
+            # await bot.send_photo(user_id, open('media/PageNotFound.png', 'rb'))
             await send_msg_and_btns(user_id, "Hali ishga tushurilmagan", 'Page not found', application_menu_uz(),
                                     application_menu_en())
         else:
@@ -36,24 +45,10 @@ async def add_application(call: CallbackQuery, state: FSMContext):
             await Application.category.set()
 
 
-@dis.message_handler(state=Application.contact)
-async def add_contact(msg: Message, state: FSMContext):
-    async with state.proxy() as data:
-        user_id = str(msg.from_user.id)
-        await del_msg(user_id, msg.message_id, 2)
-        if msg.text.startswith('+998') or msg.text.startswith('998') and msg.text[1:].isnumeric():
-            data['contact'] = msg.text
-            await send_msg_and_btns(user_id, 'Kategoriyalar', 'Categories', application_category_uz(),
-                                    application_category_en())
-            await Application.category.set()
-
-
 @dis.callback_query_handler(state=Application.category)
 async def add_category(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         user_id = str(call.from_user.id)
-        data['contact'] = await User.tell(user_id)
-        print(data.get('contact'))
         data['category'] = call.data
         await del_msg(user_id, call.message.message_id, 1)
         await send_msg_and_btns(user_id, 'Sub category', 'Sub category', application_sub_category_uz(),
@@ -74,12 +69,15 @@ async def add_sub_category(call: CallbackQuery, state: FSMContext):
 @dis.message_handler(state=Application.description, content_types='photo')
 async def add_description(msg: Message, state: FSMContext):
     async with state.proxy() as data:
+        user_id = str(msg.from_user.id)
         data['photo'] = msg.photo[0].file_id
         data['description'] = msg.caption
-        user_id = str(msg.from_user.id)
+        phone = await User.get(user_id)
+        for i in phone:
+            data['contact'] = i.phone_number
         await del_msg(user_id, msg.message_id, 2)
         await Application.photo.set()
-        await bot.send_photo(str(msg.from_user.id), data.get('photo'),
+        await bot.send_photo(user_id, data.get('photo'),
                              caption=f"📂 {data.get('description')}\n\n#{data.get('category')} #{data.get('sub_category')}\n\n☎ {data.get('contact')}\n\n👤 @{msg.from_user.username}",
                              reply_markup=YesOrNo(), parse_mode='markdown')
     await Application.username.set()
@@ -90,20 +88,24 @@ async def add_description(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         user_id = str(call.from_user.id)
         await del_msg(user_id, call.message.message_id, 1)
-        if call.data == 'yes':
-            kwargs = {
-                "type": data.get('type'),
-                "phone_number": data.get('contact'),
-                "photo": data.get('photo'),
-                "description": data.get('description'),
-                "category": data.get('category'),
-                "sub_category": data.get('sub_category')
-            }
-            await Announcement.add(user_id, **kwargs)
-            await bot.send_photo('@Weiwo_project', data.get('photo'),
-                                 caption=f"{data.get('description')}\n\n#{data.get('category')} #{data.get('sub_category')}\n\n{data.get('contact')}\n@{call.from_user.username}")
-            await send_msg_and_btns(user_id, "Jo'natildi ✅", 'Added ✅', menu_uz(), menu_en())
-        elif call.data == 'no':
-            await send_msg_and_btns(str(call.from_user.id), "Menu", "Menu", menu_uz(),
-                                    menu_en())
-        await state.finish()
+        score = await User.get(user_id)
+        for i in score:
+            if call.data == 'yes':
+                kwargs = {
+                    "type": data.get('type'),
+                    "phone_number": data.get('contect'),
+                    "photo": data.get('photo'),
+                    "description": data.get('description'),
+                    "category": data.get('category'),
+                    "sub_category": data.get('sub_category')
+                }
+                minus_score = {'score': i.score - 10}
+                await User.update(user_id, **minus_score)
+                await Announcement.add(user_id, **kwargs)
+                await bot.send_photo('@Weiwo_project', data.get('photo'),
+                                     caption=f"{data.get('description')}\n\n#{data.get('category')} #{data.get('sub_category')}\n\n{data.get('contact')}\n@{call.from_user.username}")
+                await send_msg_and_btns(user_id, "Jo'natildi ✅", 'Added ✅', menu_uz(), menu_en())
+            elif call.data == 'no':
+                await send_msg_and_btns(user_id, "Menu", "Menu", menu_uz(),
+                                        menu_en())
+            await state.finish()

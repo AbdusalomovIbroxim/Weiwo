@@ -32,11 +32,10 @@ class Product(Base):
         return product
 
     @classmethod
-    async def get(cls, user_id):
-        query = select(cls).where(cls.user_id == user_id)
+    async def get(cls, **kwargs):
+        query = select(cls).where(**kwargs)
         users = await db.execute(query)
-        user, = users.first() or None,
-        return user
+        return users.fetchall()
 
     @classmethod
     async def update(cls, user_id, **kwargs):
@@ -58,13 +57,13 @@ class Product(Base):
 
     @classmethod
     async def get_company_names(cls, city: str, category: str, sub_category: str):
-        query = select(cls.name).where(
-            cls.city == city, cls.category == category, sub_category == cls.sub_category)
+        query = select(cls.name).where(cls.city == city, cls.category == category, cls.sub_category == sub_category)
         names = await db.execute(query)
         return names.fetchall()
 
     @classmethod
     async def get_company(cls, name):
         query = select(cls).where(cls.name == name)
-        company, = await db.execute(query)
+        companys = await db.execute(query)
+        company, = companys.first() or None,
         return company

@@ -32,28 +32,33 @@ async def input_city(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         region_id = call.data.split('region_')[-1]
         data['city'] = regions_uz.get(region_id)
-        await send_msg(user_id, "Kompaniya nomini jo'nating", "Send company name")
+        await send_msg(user_id, 'Kompaniya nomini jo\'nating', 'Send company name')
         await AddCompany.name.set()
 
 
 @dis.message_handler(state=AddCompany.name)
 async def input_name(msg: Message, state: FSMContext):
+    print(msg.text)
+    user_id = str(msg.from_user.id)
+    await del_msg(user_id, msg.message_id, 2)
     async with state.proxy() as data:
         data['name'] = msg.text
-        user_id = str(msg.from_user.id)
-        await del_msg(user_id, msg.message_id, 2)
-        await send_msg_and_btns(user_id, 'Tanlang', 'Choose category', category_uz(), category_en())
-    await AddCompany.category.set()
+        await send_msg_and_btns(user_id, 'Tanlang', 'Choose', category_uz(), category_en())
+        await AddCompany.category.set()
 
 
 @dis.callback_query_handler(state=AddCompany.category)
 async def input_category(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
-        data['category'] = call.data[8:]
         user_id = str(call.from_user.id)
         await del_msg(user_id, call.message.message_id, 1)
-        await send_msg_and_btns(user_id, 'Tanlang', 'Choose', sub_category_uz(), sub_category_en())
-        await AddCompany.sub_category.set()
+        if call.data.startswith('category'):
+            data['category'] = call.data[8:]
+            await send_msg_and_btns(user_id, 'Tanlang', 'Choose', sub_category_uz(),
+                                    sub_category_en())
+            await AddCompany.sub_category.set()
+        else:
+            await bot.send_message(1501361138, 'Error func input_category call.data.start with')
 
 
 @dis.callback_query_handler(state=AddCompany.sub_category)
@@ -61,51 +66,33 @@ async def add_company_input_category(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         user_id = str(call.from_user.id)
         data['sub_category'] = call.data[12:]
-        # if call.data[12:] != 'Next':
-        #     await bot.send_message(user_id, 'Select sub_categories and click next')
-        #     if data.get('sub_category') is None:
-        #         data['sub_category'] = call.data[12:]
-        #         await del_msg(user_id, call.message.message_id, 1)
-        #     else:
-        #         await del_msg(user_id, call.message.message_id, 2)
-        #         data['sub_category'] = data.get('sub_category') + " " + call.data[12:]
-        #     await send_msg_and_btns(user_id, "Tanlang", "Choose", sub_category_uz(), sub_category_en())
-        # elif call.data[12:] == 'Next':
-    await del_msg(user_id, call.message.message_id, 1)
-    await send_msg(user_id, "Yandex url jo'nating", "Send Yandex maps url")
-    await AddCompany.yandex_maps_url.set()
+        await del_msg(user_id, call.message.message_id, 1)
+        await send_msg(user_id, "Rasm va ma'lumot jo'nating", 'Send photo and description')
+    await AddCompany.photo.set()
 
 
-@dis.message_handler(state=AddCompany.yandex_maps_url)
-async def input_yandex_maps_url(msg: Message, state: FSMContext):
-    async with state.proxy() as data:
-        user_id = str(msg.from_user.id)
-        # if msg.text.startswith('https://yandex.uz/maps/'):
-        data['yandex_maps_url'] = msg.text
-        await send_msg(user_id, "Rasm + ma'lumot jo'nating'", 'Send photo + description')
-        await del_msg(user_id, msg.message_id, 2)
-        await AddCompany.photo.set()
-        # else:
-        #     await send_msg(user_id, "Url da hatolik qaytatdan jo'nating", "Resend url error in url")
-        #     await del_msg(user_id, msg.message_id, 1)
-        #     await AddCompany.yandex_maps_url.set()
-
-
-@dis.message_handler(content_types=['photo'], state=AddCompany.photo)
+@dis.message_handler(state=AddCompany.photo, content_types=['text', 'photo'])
 async def input_photo(msg: Message, state: FSMContext):
     async with state.proxy() as data:
         user_id = str(msg.from_user.id)
-        data['photo'] = msg.photo[0].file_id
-        data['description'] = msg.caption
-        await del_msg(user_id, msg.message_id, 2)
-        if msg.caption is None:
-            await send_msg(user_id, "ma'lumot jo'nating", "Send description")
-            await AddCompany.description.set()
+        if msg.content_type == 'photo':
+            data['photo'] = msg.photo[-1].file_id
+            if msg.caption:
+                data['description'] = msg.caption
+            else:
+                await AddCompany.description.set()
         else:
+            data['description'] = msg.text
+        await del_msg(user_id, msg.message_id, 2)
+        if data.get('photo'):
             await bot.send_photo(user_id, data.get('photo'),
-                                 caption=f"{data.get('description')}\n\n📍{data.get('city')}\n\n#{data.get('category')} #{data.get('sub_category')}\n\n{data.get('name')}")
-            await send_msg_and_btns(user_id, "Hammasi tog'rimi ?", "All success ?", YesOrNo(), YesOrNo())
-            await AddCompany.explanation.set()
+                                 caption=f"{data.get('name')}\n\n{data.get('description')}\n\n#{data.get('category')} #{data.get('sub_category')}")
+        else:
+            await bot.send_message(user_id,
+                                   f"{data.get('name')}\n\n{data.get('description')}\n\n#{data.get('category')} #{data.get('sub_category')}")
+
+        await send_msg_and_btns(user_id, "Hammasi tog'rimi ?", "All success ?", YesOrNo(), YesOrNo())
+    await AddCompany.explanation.set()
 
 
 @dis.message_handler(state=AddCompany.description)
@@ -114,11 +101,15 @@ async def input_description(msg: Message, state: FSMContext):
         user_id = str(msg.from_user.id)
         await del_msg(user_id, msg.message_id, 1)
         data['description'] = msg.text
-        await bot.send_photo(user_id, data.get('photo'),
-                             caption=f"{data.get('description')}\n\n📍{data.get('city')}\n\n#{data.get('category')} #{data.get('sub_category')}\n\n{data.get('name')}")
-        await bot.send_message(user_id, data.get('yandex_maps_url'))
+        if data.get('photo'):
+            await bot.send_photo(user_id, data.get('photo'),
+                                 caption=f"{data.get('name')}\n\n{data.get('description')}\n\n#{data.get('category')} #{data.get('sub_category')}")
+        else:
+            await bot.send_message(user_id,
+                                   f"{data.get('name')}\n\n{data.get('description')}\n\n#{data.get('category')} #{data.get('sub_category')}")
+
         await send_msg_and_btns(user_id, "Hammasi tog'rimi ?", "All success ?", YesOrNo(), YesOrNo())
-    await AddCompany.explanation.set()
+        await AddCompany.explanation.set()
 
 
 @dis.callback_query_handler(state=AddCompany.explanation)
@@ -132,13 +123,13 @@ async def success(call: CallbackQuery, state: FSMContext):
                 "name": data.get('name'),
                 "category": data.get('category'),
                 "sub_category": data.get('sub_category'),
-                "yandex_maps_url": data.get('yandex_maps_url'),
                 "photo": data.get('photo'),
                 "description": data.get('description'),
             }
             await Product.add_product(user_id, **data)
             await del_msg(user_id, call.message.message_id, 2)
             await send_msg_and_btns(user_id, "Qo'shildi ✅", "Added ✅", menu_uz(), menu_en())
-        else:
+        elif call.data == 'no':
+            print('success')
             await AddCompany.city.set()
     await state.finish()

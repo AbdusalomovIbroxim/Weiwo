@@ -13,39 +13,78 @@ def read_csv(file_name):
 regions_uz = {_id: name for _id, name in read_csv('regions.csv')}
 regions_en = {_id: name for _id, name in read_csv('regions_en.csv')}
 
-text_menu_en = ["Add company", "Advertising",
+text_menu_en = ["Add company", "Weakness to join the company",
                 "Search company",
                 "Our pages", "Application", 'My cabinet'
                 ]  # "Last orders"
-text_menu_uz = ["Kompaniya qo'shish", "Reklama berish",
+text_menu_uz = ["Kompaniya qo'shish", "Kompaniya qoshishga zayafka berish",
                 "Kompaniya qidirish",
                 "Bizning sahifalar", "Zayavka", 'Mening kablinetm'
                 ]  # "Oxirgi buyurtmanlar"
-categories_uz_for_s = ['Ishlab chiqaruvchi', "Uskuna ta'minotchi", "Xom ashyo ta'minotchi",
-                       "Shahardagi hammam kompaniyalar"]
-categories_en_for_s = ["Manufacturer", "Equipment supplier", "Supplier of raw materials", "All companies in city"]
+# categories_uz_for_s = ['Ishlab chiqaruvchi', "Uskuna ta'minotchi", "Xom ashyo ta'minotchi",
+#                        "Shahardagi hammam kompaniyalar"]
+# categories_en_for_s = ["Manufacturer", "Equipment supplier", "Supplier of raw materials", "All companies in city"]
 categories_uz_ = ['Ishlab chiqaruvchi', "Uskuna ta'minotchi", "Xom ashyo ta'minotchi"]
 categories_en_ = ["Manufacturer", "Equipment supplier", "Supplier of raw materials"]
 
-sub_categories_uz = ['Hammasi',
-                     "Umumiy turdagi uskuna ta'minotchisi",
-                     'Plastmassa va qarton',
+sub_categories_uz = ["Umumiy turdagi uskuna ta'minotchisi",
+                     'Plastmassa',
                      'Tekstil/yengil sanoat',
                      'Agro',
                      'Metall',
                      'Qadoqlash/fasovka/markirovka/pechat',
                      'Sanoat iqlim uskunalari',
-                     'Ombor uskunalari'
+                     'Ombor uskunalari',
+                     'Oziq ovqat'
                      ]
-sub_categories_en = ['Everything',
-                     'General equipment supplier',
-                     'Plastic and resin',
+sub_categories_en = ['General equipment supplier',
+                     'Plastic',
                      'Textile/light industry',
                      'Agro',
                      'Metal',
                      'Packing/marking/printing',
                      'Industrial climate equipment',
-                     'Warehouse equipment']
+                     'Warehouse equipment',
+                     "Food"]
+
+sub_category_uz_uskuna = [
+    "Хаммаси",
+    "Умумий турдаги ускунв та'минотчиси",
+    "Пластмасса ва ресин",
+    "Текстил/енгил саноат",
+    "агро",
+    "Металл",
+    "Қадоқлаш/фасовка/маркировка/печат",
+    "Саноат иқлим ускуналари",
+    "Омбор ускуналари",
+    "Озиқ - овқат ишлаб чиқариш",
+    "Кимёвий жараёнлар ускуналари",
+    "Энергия ва электр жиҳозлари",
+    "Хизмат кўрсатиш",
+    "Қурилиш ускуна ва техникалари",
+    "Ёғоч ва мебелсозлик",
+    "Ёрдамчи ускуналар",
+    "Машинасозлик деталлари",
+]
+sub_category_en_uskuna = [
+    "Everything",
+    "Generic Equipment Provider",
+    "Plastic and resin",
+    "Textile/light industry",
+    "Agro",
+    "Metal",
+    "Packing/packaging/marking/printing",
+    "Industrial climate equipment",
+    "Warehouse equipment",
+    "Food production",
+    "Chemical process equipment",
+    "Energy and electrical equipment",
+    "Servicing",
+    "Construction equipment and techniques",
+    "Wood and furniture",
+    "Auxiliary equipment",
+    "Mechanical engineering details",
+]
 
 application_uz = ["Sotish", "Qidirish", "Barcha e'lonlar", "Asosiy menyuga"]
 application_en = ["Selling", "Searching", "All application", "Main menu"]
@@ -59,12 +98,13 @@ application_sub_category_en_text = ['Sub category 1', 'Sub category 2', 'Sub cat
                                     'Sub category 5']
 
 btn_text_admin_panel_uz = ['Kompaniyani tahrirlash', 'E\'lonni tahrirlash', 'kompaniyani o\'chirish',
-                           'E\'lonni o\'chirish', 'Axborot byulleteni', 'Admin qo\'shish', 'Rassilka']
+                           'E\'lonni o\'chirish', 'Axborot byulleteni', 'Admin qo\'shish', 'Rassilka',
+                           'Hisob to\'ldirish']
 btn_text_admin_panel_en = ['Edit company', 'Edit post', 'Del company', 'Del post', 'Newsletter', 'Add admin',
-                           'Mailing list']
+                           'Mailing list', 'add money']
 
-text_my_cabinet_uz = ['E\'lonni o\'zgartirish', 'Hamyon']
-text_my_cabinet_en = ['Edit announcement', 'Wallet']
+text_my_cabinet_uz = ['Hamyon', 'Hisobni toldirish']  # 'E\'lonni o\'zgartirish',
+text_my_cabinet_en = ['Wallet', 'Top up the account']  # 'Edit announcement',
 
 
 def chooce_lang():
@@ -110,7 +150,7 @@ def regions_buttons_en():
 def category_uz():
     markup = InlineKeyboardMarkup(row_width=2)
     result = [
-        InlineKeyboardButton(text, callback_data=f'category{categories_en_[categories_uz_.index(text)]}') for text in
+        InlineKeyboardButton(text, callback_data=f"category{text}") for text in
         categories_uz_
     ]
     return markup.add(*result)
@@ -119,7 +159,8 @@ def category_uz():
 def category_en():
     markup = InlineKeyboardMarkup(row_width=2)
     result = [
-        InlineKeyboardButton(text, callback_data=f'category{text}') for text in categories_en_
+        InlineKeyboardButton(text, callback_data=f"category{categories_uz_[categories_en_.index(text)]}") for text in
+        categories_en_
     ]
     return markup.add(*result)
 
@@ -127,7 +168,7 @@ def category_en():
 def sub_category_uz():
     markup = InlineKeyboardMarkup(row_width=2)
     result = [
-        InlineKeyboardButton(text, callback_data=f'sub_category{sub_categories_en[sub_categories_uz.index(text)]}')
+        InlineKeyboardButton(text, callback_data=f"sub_category{text}")
         for text in sub_categories_uz
     ]
     return markup.add(*result)
@@ -136,7 +177,9 @@ def sub_category_uz():
 def sub_category_en():
     markup = InlineKeyboardMarkup(row_width=2)
     result = [
-        InlineKeyboardButton(text, callback_data=f'sub_category{text}') for text in sub_categories_en
+        InlineKeyboardButton(text, callback_data=f"sub_category{sub_categories_uz[sub_categories_en.index(text)]}") for
+        text in
+        sub_categories_en
     ]
     return markup.add(*result)
 
@@ -253,7 +296,7 @@ def my_cabinet_en():
     return InlineKeyboardMarkup(row_width=2).add(*result)
 
 
-async def my_announcements():
-    id = await Announcement.get_all()
+async def my_announcements(user_id):
+    id = await Announcement.get_all(user_id)
     result = [InlineKeyboardButton(f'{i[0].description}', callback_data=i[0].pk) for i in id]
     return InlineKeyboardMarkup().add(*result)

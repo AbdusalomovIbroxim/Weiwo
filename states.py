@@ -10,13 +10,13 @@ class AddCompany(StatesGroup):
     telegram_id = State()
     full_name = State()
     city = State()
+    name = State()
     category = State()
     sub_category = State()
-    name = State()
-    yandex_maps_url = State()
     photo = State()
     description = State()
     explanation = State()
+    yandex_maps_url = State()
 
 
 class SearchCompany(StatesGroup):
@@ -55,9 +55,19 @@ class Advertising(StatesGroup):
 
 class Edit_announcement(StatesGroup):
     id = State()
+    type = State()
     category = State()
     sub_category = State()
     photo = State()
     description = State()
     phone = State()
     score = State()
+
+
+class Update_money(StatesGroup):
+    HoeManyPoints = State()
+    ToWhom = State()
+
+
+class AddAdmin(StatesGroup):
+    id = State()
